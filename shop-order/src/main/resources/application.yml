@@ -1,0 +1,84 @@
+spring:
+  datasource:
+    username: sun
+    password: 123456
+    url: jdbc:mysql://192.168.231.129:3306/fzyshop_oms
+    driver-class-name: com.mysql.jdbc.Driver
+  cloud:
+    nacos:
+      serverAddr: 127.0.0.1:8848
+      username: 'nacos'
+      password: 'nacos'
+    sentinel:
+      transport:
+        #配置sentinel dashboard地址
+        dashboard: localhost:8080
+        #默认8719端口，假如被占用会自动从8719开始依次+1扫描，直至找到未被占用的端口
+        port: 8719
+  config:
+    import:
+      - nacos:nacos-config-example.properties?refreshEnabled=true&group=DEFAULT_GROUP
+  #关闭thymeleaf缓存
+  thymeleaf:
+    cache: false
+  session:
+    redis:
+      repository-type: default
+  data:
+    redis:
+      host: 192.168.231.129
+      port: 6379
+  application:
+    name: shop-order
+mybatis-plus:
+  mapper-locations: classpath:/mapper/**/*.xml
+  global-config:
+    db-config:
+      id-type: auto
+
+server:
+  port: 9000
+#暴露所有端点
+management:
+  endpoints:
+    web:
+      exposure:
+        include: '*'
+  tracing:
+    sampling:
+      # 配置采样率，1.0 表示 100% 采样
+      probability: 1.0
+  zipkin:
+    tracing:
+      # Zipkin 服务器地址
+      endpoint: "http://192.168.231.129:9411/api/v2/spans"
+
+#开启feign对sentinel的支持
+feign:
+  sentinel:
+    enabled: true
+#seata:
+#  enabled: true
+#  application-id: ${spring.application.name}
+#  # 事务分组名
+#  tx-service-group: shop-order-group
+#  service:
+#    vgroup-mapping:
+#      # 映射关系正确：分组名 -> 集群名(default)
+#      shop-order-group: default
+#  registry:
+#    type: nacos
+#    nacos:
+#      application: seata-server
+#      server-addr: localhost:8848
+#      group: SEATA_GROUP
+#      # namespace: ""  # 如果是 public 建议直接注掉
+#  config:
+#    type: nacos
+#    nacos:
+#      server-addr: localhost:8848
+#      group: SEATA_GROUP
+#  client:
+#    undo:
+#      data-validation: true
+#      log-serialization: jackson

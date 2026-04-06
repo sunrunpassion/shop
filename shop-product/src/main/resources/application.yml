@@ -1,0 +1,80 @@
+# src/main/resources/application.yml
+spring:
+  application:
+    name: shop-product # <--- 现在将 spring.application.name 放在这里
+  datasource:
+    username: sun
+    password: 123456
+    url: jdbc:mysql://192.168.231.129:3306/fzyshop_pms
+    driver-class-name: com.mysql.jdbc.Driver
+  cloud: # <--- Nacos Config 和 Discovery 的连接信息也放在这里
+    nacos:
+      config:
+        server-addr: 127.0.0.1:8848
+        username: 'nacos'
+        password: 'nacos'
+        file-extension: properties # 确保这里是 properties
+        namespace: d5dc8720-663a-42b4-b511-1d8b1b4d9578
+      discovery: # 如果使用Nacos服务注册发现，也在这里配置
+        server-addr: 127.0.0.1:8848
+        username: 'nacos'
+        password: 'nacos'
+    sentinel:
+      transport:
+        #配置sentinel dashboard地址
+        dashboard: localhost:8080
+        #默认8719端口，假如被占用会自动从8719开始依次+1扫描，直至找到未被占用的端口
+        port: 8719
+  config:
+   import:
+    - nacos:shop-product.properties?refreshEnabled=true&group=DEFAULT_GROUP
+
+  main:
+    allow-circular-references: true
+  jackson:
+    date-format: yyyy-MM-dd HH:mm:ss
+  #关闭thymeleaf缓存
+  thymeleaf:
+    cache: false
+  session:
+    redis:
+      repository-type: default
+  data:
+    redis:
+      host: 192.168.231.129
+      port: 6379
+
+mybatis-plus:
+  mapper-locations: classpath:/mapper/**/*.xml
+  global-config:
+    db-config:
+      id-type: auto
+      logic-delete-value: 1
+      logic-not-delete-value: 0
+
+server:
+  port: 12000
+logging:
+  level:
+    com.fzy.shop: debug
+
+#暴露所有端点
+management:
+  endpoints:
+    web:
+      exposure:
+        include: '*'
+  tracing:
+    sampling:
+      # 配置采样率，1.0 表示 100% 采样
+      probability: 1.0
+  zipkin:
+    tracing:
+      # Zipkin 服务器地址
+      endpoint: "http://192.168.231.129:9411/api/v2/spans"
+
+feign:
+  sentinel:
+    enabled: true
+
+

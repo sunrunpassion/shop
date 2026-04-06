@@ -1,0 +1,70 @@
+spring:
+  application:
+    name: shop-ware # 1. 定义服务名，注册中心会显示这个名字
+
+  datasource:
+    username: sun
+    password: 123456
+    url: jdbc:mysql://192.168.231.129:3306/fzyshop_wms
+    driver-class-name: com.mysql.cj.jdbc.Driver # 建议用这个新版驱动名，兼容性更好
+
+  cloud:
+    nacos:
+      # 2. Nacos 服务地址
+      server-addr: 127.0.0.1:8848
+      username: 'nacos'
+      password: 'nacos'
+      discovery:
+        server-addr: 127.0.0.1:8848 # 注册中心地址
+      config:
+        server-addr: 127.0.0.1:8848 # 配置中心地址
+        file-extension: properties
+    sentinel:
+      transport:
+        #配置sentinel dashboard地址
+        dashboard: localhost:8080
+        #默认8719端口，假如被占用会自动从8719开始依次+1扫描，直至找到未被占用的端口
+        port: 8719
+
+  config:
+    import:
+      # 3. 引入 Nacos 远程配置文件
+      # 建议在 Nacos 创建名为 shop-ware.properties 的配置
+      - nacos:shop-ware.properties?refreshEnabled=true&group=DEFAULT_GROUP
+
+  jackson:
+    date-format: yyyy-MM-dd HH:mm:ss
+
+mybatis-plus:
+  mapper-locations: classpath:/mapper/**/*.xml
+  global-config:
+    db-config:
+      id-type: auto
+
+
+server:
+  port: 16000
+
+logging:
+  level:
+    com.fzy.shop: debug
+
+#暴露所有端点
+management:
+  endpoints:
+    web:
+      exposure:
+        include: '*'
+  tracing:
+    sampling:
+      # 配置采样率，1.0 表示 100% 采样
+      probability: 1.0
+  zipkin:
+    tracing:
+      # Zipkin 服务器地址
+      endpoint: "http://192.168.231.129:9411/api/v2/spans"
+
+#开启feign对sentinel的支持
+feign:
+  sentinel:
+    enabled: true

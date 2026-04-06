@@ -1,0 +1,58 @@
+spring:
+  application:
+    name: shop-cart # <--- 现在将 spring.application.name 放在这里
+  cloud: # <--- Nacos Config 和 Discovery 的连接信息也放在这里
+    nacos:
+      config:
+        server-addr: 127.0.0.1:8848
+        username: 'nacos'
+        password: 'nacos'
+        file-extension: yaml # 确保这里是 properties
+        namespace: cca348b5-3d43-49b7-bb69-be17a34446c9
+      discovery: # 如果使用Nacos服务注册发现，也在这里配置
+        server-addr: 127.0.0.1:8848
+        username: 'nacos'
+        password: 'nacos'
+    sentinel:
+      transport:
+        #配置sentinel dashboard地址
+        dashboard: localhost:8080
+        #默认8719端口，假如被占用会自动从8719开始依次+1扫描，直至找到未被占用的端口
+        port: 8719
+  thymeleaf:
+    cache: false
+  data:
+    redis:
+      host: 192.168.231.129
+      port: 6379
+  session:
+    redis:
+      repository-type: default
+
+  config:
+    import:
+      - nacos:shop-third-party.yaml?refreshEnabled=true&group=DEFAULT_GROUP
+
+
+server:
+  port: 5000
+
+#暴露所有端点
+management:
+  endpoints:
+    web:
+      exposure:
+        include: '*'
+  tracing:
+    sampling:
+      # 配置采样率，1.0 表示 100% 采样
+      probability: 1.0
+  zipkin:
+    tracing:
+      # Zipkin 服务器地址
+      endpoint: "http://192.168.231.129:9411/api/v2/spans"
+
+#开启feign对sentinel的支持
+feign:
+  sentinel:
+    enabled: true

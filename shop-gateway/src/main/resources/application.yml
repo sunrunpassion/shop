@@ -1,0 +1,116 @@
+spring:
+  application:
+    name: shop-gateway
+  cloud: # <--- Nacos Config ? Discovery ??????????
+    nacos:
+      config:
+        server-addr: 127.0.0.1:8848
+        username: 'nacos'
+        password: 'nacos'
+        file-extension: yml # ????? properties
+        namespace: de4bdf0c-ecac-48cb-abf1-3fde50c06d3a
+      discovery: # ????Nacos?????????????
+        server-addr: 127.0.0.1:8848
+        username: 'nacos'
+        password: 'nacos'
+    sentinel:
+      transport:
+        #配置sentinel dashboard地址
+        dashboard: localhost:8080
+        #默认8719端口，假如被占用会自动从8719开始依次+1扫描，直至找到未被占用的端口
+        port: 8719
+    gateway:
+      routes:
+        - id: product_route
+          uri: lb://shop-product
+          predicates:
+            - Path=/api/product/**
+          filters:
+            - RewritePath=/api/(?<segment>.*), /$\{segment}
+        - id: coupon_route
+          uri: lb://shop-coupon
+          predicates:
+            - Path=/api/coupon/**
+          filters:
+            - RewritePath=/api/(?<segment>.*), /$\{segment}
+        - id: third_party_route
+          uri: lb://shop-third-party
+          predicates:
+            - Path=/api/thirdparty/**
+          filters:
+            - RewritePath=/api/thirdparty/(?<segment>.*),/$\{segment}
+        - id: member_route
+          uri: lb://shop-member
+          predicates:
+            - Path=/api/member/**
+          filters:
+            - RewritePath=/api/(?<segment>.*), /$\{segment}
+        - id: ware_route
+          uri: lb://shop-ware
+          predicates:
+            - Path=/api/ware/**
+          filters:
+            - RewritePath=/api/(?<segment>.*), /$\{segment}
+        - id: admin_route
+          uri: lb://renren-fast
+          predicates:
+            - Path=/api/**
+          filters:
+            - RewritePath=/api/(?<segment>.*), /renren-fast/$\{segment}
+        - id: fzyshop_host_route
+          uri: lb://shop-product
+          predicates:
+            - Host=fzyshop.com,item.fzyshop.com
+        - id: fzyshop_search_route
+          uri: lb://shop-search
+          predicates:
+            - Host=search.fzyshop.com
+        - id: fzyshop_auth_route
+          uri: lb://shop-auth-server
+          predicates:
+            - Host=auth.fzyshop.com
+        - id: fzyshop_cart_route
+          uri: lb://shop-cart
+          predicates:
+            - Host=cart.fzyshop.com
+        - id: fzyshop_order_route
+          uri: lb://shop-order
+          predicates:
+            - Host=order.fzyshop.com
+        - id: fzyshop_member_route
+          uri: lb://shop-member
+          predicates:
+            - Host=member.fzyshop.com
+        - id: fzyshop_seckill_route
+          uri: lb://shop-seckill
+          predicates:
+            - Host=seckill.fzyshop.com
+
+##注意前面会renren会拦截如果predicates是/api/**和/api/product/**注意优先级
+## 前端项目，/api  要修改为我们要路由的地方http://localhost:15000/api/product/category/list/tree
+  ##http://localhost:15000/api/product/category/list/tree=》http://localhost:15000/product/category/list/tree
+  config: #?????????- nacos:global-config.yml?refreshEnabled=true&group=COMMON_GROUP
+    import:
+      - nacos:shop-gateway.yml?refreshEnabled=true&group=DEFAULT_GROUP
+
+server:
+  port: 15000
+
+#暴露所有端点
+management:
+  endpoints:
+    web:
+      exposure:
+        include: '*'
+  tracing:
+    sampling:
+      # 配置采样率，1.0 表示 100% 采样
+      probability: 1.0
+  zipkin:
+    tracing:
+      # Zipkin 服务器地址
+      endpoint: "http://192.168.231.129:9411/api/v2/spans"
+#开启feign对sentinel的支持
+feign:
+  sentinel:
+    enabled: true

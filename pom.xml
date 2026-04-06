@@ -14,5 +14,9 @@
 		<module>shop-ware</module>
 		<module>shop-order</module>
 		<module>shop-coupon</module>
+		<module>renren-fast</module>
+		<module>shop-common</module>
+		<module>renren-generator</module>
+		<module>shop-third-party</module> <!-- 必须有这一行 -->
 	</modules>
 </project>
