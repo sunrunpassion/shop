@@ -34,8 +34,8 @@ public class OAuth2Controller {
 
         Map<String, String> map = new HashMap<>();
         //TODO 修改这个key和id 记得再去html修改对应跳转
-        map.put("client_id","2077705774");
-        map.put("client_secret","40af02bd1c7e435ba6a6e9cd3bf799fd");
+        map.put("client_id","3096824587");
+        map.put("client_secret","8594d50caa7c9abb61a0edf8d1366375");
         map.put("grant_type","authorization_code");
         map.put("redirect_uri","http://auth.fzyshop.com/oauth2.0/weibo/success");
         map.put("code",code);
